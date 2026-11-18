@@ -259,7 +259,7 @@ const sum = (r: { kcal: number }[]) => r.reduce((a, b) => a + b.kcal, 0);
 
 function MiniPlate({ oil, label }: { oil: boolean; label: string }) {
   return (
-    <div className="rounded-[24px] bg-tray p-4 text-center">
+    <div className="rounded-[24px] border border-line bg-porcelain p-4 text-center">
       <p className="font-display text-[18px] font-bold">{label}</p>
       <div className="relative mx-auto mt-2 h-40 w-60">
         <img src="/food/plate.webp" alt="" className="illus absolute inset-x-0 bottom-0 w-full" />
@@ -282,8 +282,8 @@ export function OilPlates({ condition, onDone }: { condition: Condition; onDone:
   }, [condition, onDone]);
   const max = sum(PLATE_B);
   return (
-    <div>
-      <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+    <div className="rounded-[28px] bg-tray p-6 sm:p-8">
+      <div className="grid gap-4 sm:grid-cols-2">
         <MiniPlate oil={false} label="Plate A" />
         <MiniPlate oil label="Plate B" />
       </div>
@@ -296,7 +296,7 @@ export function OilPlates({ condition, onDone }: { condition: Condition; onDone:
               ["little", "A little more, maybe 50 kcal"],
               ["lot", "A lot more, around 200–250 kcal"],
             ].map(([id, t]) => (
-              <button key={id} onClick={() => setGuess(id)} className={`rounded-2xl border bg-tray px-4 py-3 text-left text-[15px] ${guess === id ? "border-ink" : "border-line"}`}>
+              <button key={id} onClick={() => setGuess(id)} aria-pressed={guess === id} className={`rounded-2xl border-2 px-4 py-3 text-left text-[15px] ${guess === id ? "border-ink bg-cream-2 font-semibold" : "border-line bg-tray hover:border-ink"}`}>
                 {t}
               </button>
             ))}
@@ -308,7 +308,7 @@ export function OilPlates({ condition, onDone }: { condition: Condition; onDone:
       )}
       <AnimatePresence>
         {shown && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-8 max-w-3xl rounded-[24px] bg-tray p-6">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-8 rounded-[24px] bg-cream-2 p-6">
             {[
               ["Plate A", PLATE_A],
               ["Plate B", PLATE_B],
@@ -359,18 +359,35 @@ export function PlateModelVisual() {
     { a: 0.75, b: 1, c: "var(--protein)", l: "Protein", img: "/food/salmon.webp", pos: "left-4 top-4" },
   ];
   return (
-    <div className="relative h-72 w-72">
-      <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
-        <circle cx="100" cy="100" r="99" fill="white" stroke="var(--line)" />
-        {slices.map((s, i) => (
-          <motion.path key={s.l} d={arc(s.a, s.b)} fill={s.c} fillOpacity={0.85} initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.15 + i * 0.2 }} style={{ transformOrigin: "100px 100px" }} />
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative h-64 w-64">
+        <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full" role="img" aria-label="Plate: half vegetables and fruit, a quarter whole grains, a quarter protein, plus some healthy fat">
+          <circle cx="100" cy="100" r="99" fill="white" stroke="var(--line)" />
+          {slices.map((s, i) => (
+            <motion.path key={s.l} d={arc(s.a, s.b)} fill={s.c} fillOpacity={0.85} initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.15 + i * 0.2 }} style={{ transformOrigin: "100px 100px" }} />
+          ))}
+          <circle cx="100" cy="100" r="99" fill="none" stroke="white" strokeWidth="5" />
+        </svg>
+        {slices.map((s) => (
+          <img key={s.l} src={s.img} alt="" className={`illus absolute h-[4.5rem] w-[4.5rem] ${s.pos}`} />
         ))}
-        <circle cx="100" cy="100" r="99" fill="none" stroke="white" strokeWidth="5" />
-      </svg>
-      {slices.map((s) => (
-        <img key={s.l} src={s.img} alt="" className={`illus absolute h-20 w-20 ${s.pos}`} />
-      ))}
-      <img src="/food/avocado.webp" alt="" className="illus absolute -bottom-2 -right-2 h-16 w-16" />
+        <img src="/food/avocado.webp" alt="" className="illus absolute -bottom-2 -right-2 h-14 w-14" />
+      </div>
+      <ul className="grid grid-cols-2 gap-x-5 gap-y-1.5 text-[13.5px]">
+        {[
+          { c: "var(--fiber)", l: "Vegetables & fruit", v: "½" },
+          { c: "var(--carb)", l: "Whole grains", v: "¼" },
+          { c: "var(--protein)", l: "Protein", v: "¼" },
+          { c: "var(--fat)", l: "Healthy fat", v: "some" },
+        ].map((x) => (
+          <li key={x.l} className="flex items-center gap-2">
+            <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: x.c }} />
+            <span>
+              {x.l} <span className="text-muted">· {x.v}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

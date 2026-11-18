@@ -32,7 +32,7 @@ export function AbChooser() {
             <div className="mt-6 rounded-2xl bg-[#fdfbee] p-5 text-ink" aria-label="What version A looks like">
               <p className="text-[12px] font-semibold text-red">Key point</p>
               <p className="mt-1 text-[15px] leading-relaxed">
-                Plate B was cooked in about two thumbs of oil. Fat has 9 kcal per gram, so that&rsquo;s about 240 extra kcal you can&rsquo;t see.
+                Plate B was cooked in about 2 tbsp of oil (one thumb). Fat has 9 kcal per gram, so that&rsquo;s about 240 extra kcal you can&rsquo;t see.
               </p>
               <span className="mt-3 inline-block rounded-full bg-ink px-4 py-1.5 text-[13px] font-semibold text-[#fdfbee]">Continue</span>
             </div>
@@ -55,7 +55,7 @@ export function AbChooser() {
               </p>
               <p className="text-[12px] font-semibold text-red">2 · Compare with the model answer</p>
               <p className="rounded-xl bg-cream-2 px-3 py-2 text-[14px] leading-relaxed">
-                Plate B was cooked in about two thumbs of oil. Fat has 9 kcal per gram, so that&rsquo;s about 240 extra kcal you can&rsquo;t see.
+                Plate B was cooked in about 2 tbsp of oil (one thumb). Fat has 9 kcal per gram, so that&rsquo;s about 240 extra kcal you can&rsquo;t see.
               </p>
               <p className="text-[12px] font-semibold text-red">3 · Check your own sentence</p>
               <ul className="grid gap-1 text-[13.5px]">

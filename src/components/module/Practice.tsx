@@ -61,7 +61,7 @@ export function Practice({ item, onDone }: { item: PracticeItem; onDone: () => v
   const ready = multiple ? Array.isArray(value) && value.length > 0 : value !== null;
 
   return (
-    <div>
+    <div className="rounded-[28px] bg-tray p-6 sm:p-8">
       <p className="text-[19px] font-semibold leading-snug">{item.prompt}</p>
       {item.image && <img src={item.image} alt="" className="illus mt-4 h-32 w-32" />}
       <div className="mt-5">

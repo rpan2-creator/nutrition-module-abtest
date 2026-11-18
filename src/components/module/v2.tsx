@@ -56,70 +56,116 @@ const BUCKET_LINE: Record<Macro, string> = {
   fiber: "The part of plants you don't fully digest; helps digestion and fullness.",
 };
 
-function FoodInBucket({ f, i, small, onSee }: { f: Food; i: number; small: boolean; onSee: (f: Food) => void }) {
-  const [on, setOn] = useState(false);
-  const show = () => {
-    setOn(true);
-    onSee(f);
-  };
+/**
+ * A pail drawn in three layers: the back of the rim, the heap of foods, then the
+ * front of the pail on top, so the lower foods look sunk inside it. Only the
+ * painted front blocks the pointer, so every visible food can be hovered.
+ */
+function PailBack() {
   return (
-    <span
-      tabIndex={0}
-      role="img"
-      aria-label={f.name}
-      onMouseEnter={show}
-      onMouseLeave={() => setOn(false)}
-      onFocus={show}
-      onBlur={() => setOn(false)}
-      onClick={(e) => {
-        e.stopPropagation();
-        on ? setOn(false) : show();
-      }}
-      className={`relative grid ${small ? "w-[24%]" : "w-[30%]"} cursor-help place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ink`}
-    >
-      <img src={f.img} alt="" className={`illus aspect-square w-full object-contain transition-transform duration-150 hover:scale-125`} style={{ transform: `rotate(${(i % 3) * 7 - 7}deg)` }} />
-      {on && (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[12px] font-semibold text-porcelain shadow">
-          {f.name}
-        </span>
+    <svg viewBox="0 0 200 200" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+      {/* handle */}
+      <path d="M22 96 C 30 4, 170 4, 178 96" fill="none" stroke="#110000" strokeWidth="3" strokeLinecap="round" opacity=".55" />
+      <circle cx="22" cy="98" r="4" fill="#110000" opacity=".55" />
+      <circle cx="178" cy="98" r="4" fill="#110000" opacity=".55" />
+      {/* inside of the rim */}
+      <ellipse cx="100" cy="96" rx="86" ry="15" fill="#e9e3c4" stroke="#110000" strokeWidth="3" />
+    </svg>
+  );
+}
+
+function PailFront({ tint }: { tint: string | null }) {
+  return (
+    <svg viewBox="0 0 200 200" className="pointer-events-none absolute inset-0 z-20 h-full w-full" aria-hidden>
+      <path
+        d="M14 96 A86 15 0 0 0 186 96 L166 188 Q100 200 34 188 Z"
+        fill="#fffdf4"
+        stroke="#110000"
+        strokeWidth="3"
+        strokeLinejoin="round"
+        style={{ pointerEvents: "visiblePainted" }}
+      />
+      {tint && (
+        <motion.path
+          d="M14 96 A86 15 0 0 0 186 96 L166 188 Q100 200 34 188 Z"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.22 }}
+          style={{ fill: tint }}
+        />
       )}
-    </span>
+      {/* two hoops */}
+      <path d="M19 120 Q100 140 181 120" fill="none" stroke="#110000" strokeOpacity=".22" strokeWidth="2.5" />
+      <path d="M29 172 Q100 190 171 172" fill="none" stroke="#110000" strokeOpacity=".22" strokeWidth="2.5" />
+      {/* front lip of the rim */}
+      <path d="M14 96 A86 15 0 0 0 186 96" fill="none" stroke="#110000" strokeWidth="4" />
+    </svg>
   );
 }
 
 function Bucket({ role, foods, open, onOpen, onSee }: { role: Macro; foods: Food[]; open: boolean; onOpen: () => void; onSee: (f: Food) => void }) {
+  const [hover, setHover] = useState<Food | null>(null);
+  const big = foods.length > 8;
+  const see = (f: Food) => {
+    setHover(f);
+    onSee(f);
+  };
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="relative w-full max-w-[240px]" style={{ aspectRatio: "200 / 190" }}>
-        {/* the bucket */}
-        <svg viewBox="0 0 200 190" className="absolute inset-0 h-full w-full" aria-hidden>
-          <path d="M10 22 L190 22 L166 178 Q100 190 34 178 Z" fill="#fffdf4" stroke="#110000" strokeWidth="3" />
-          <ellipse cx="100" cy="22" rx="90" ry="12" fill="#f3f0d6" stroke="#110000" strokeWidth="3" />
-        </svg>
-        {/* the foods, inside it; hover or tap a food to see its name */}
-        <div className="absolute inset-x-[15%] top-[15%] bottom-[8%] z-10 flex flex-wrap content-center items-center justify-center gap-y-[3%]">
+      <div className="relative w-full max-w-[230px]" style={{ aspectRatio: "1 / 1" }} onMouseLeave={() => setHover(null)}>
+        <PailBack />
+        {/* the heap: first foods at the bottom, sunk below the rim */}
+        <div className="absolute inset-x-[8%] bottom-[48%] z-10 flex flex-wrap-reverse content-start justify-center">
           {foods.map((f, i) => (
-            <FoodInBucket key={f.id + i} f={f} i={i} small={foods.length > 9} onSee={onSee} />
+            <button
+              type="button"
+              key={f.id + i}
+              aria-label={f.name}
+              onMouseEnter={() => see(f)}
+              onFocus={() => see(f)}
+              onClick={() => see(f)}
+              className={`group relative -mx-[2%] -mb-[6%] ${big ? "w-[27%]" : "w-[31%]"} cursor-help rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ink`}
+              style={{ zIndex: foods.length - i }}
+            >
+              <img
+                src={f.img}
+                alt=""
+                className={`illus aspect-square w-full object-contain transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-110 ${hover?.id === f.id ? "-translate-y-1 scale-110" : ""}`}
+                style={{ rotate: `${((i * 37) % 24) - 12}deg` }}
+              />
+            </button>
           ))}
         </div>
-      </div>
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={open ? `${MACRO[role].label} bucket` : "Show this bucket's name"}
-        className="mt-3 flex min-h-10 items-center justify-center"
-      >
-        {open ? (
-          <motion.span initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-            <RoleChip role={role} />
-          </motion.span>
-        ) : (
-          <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-porcelain px-3.5 py-1.5 text-[13px] font-semibold hover:bg-cream-2">
-            <span className="font-display text-[16px] font-bold">?</span> <span className="whitespace-nowrap">Show name</span>
+        <PailFront tint={open ? MACRO[role].color : null} />
+        {/* label on the front of the pail */}
+        <div className="pointer-events-none absolute inset-x-0 top-[66%] z-30 flex justify-center">
+          {open ? (
+            <motion.span initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+              <RoleChip role={role} />
+            </motion.span>
+          ) : (
+            <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-ink bg-porcelain font-display text-[18px] font-bold">?</span>
+          )}
+        </div>
+        {/* name of the food under the pointer */}
+        {hover && (
+          <span className="pointer-events-none absolute left-1/2 top-[2%] z-40 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-3 py-1 text-[12.5px] font-semibold text-porcelain shadow-md">
+            {hover.name}
           </span>
         )}
-      </button>
-      <p className="mt-2 max-w-[24ch] text-[12.5px] leading-snug text-muted">{open ? BUCKET_LINE[role] : "What do these foods have in common?"}</p>
+      </div>
+      {open ? (
+        <div className="mt-2 min-h-10" />
+      ) : (
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label="Show this bucket's name"
+          className="mt-2 min-h-10 rounded-full border-2 border-ink bg-porcelain px-4 py-1.5 text-[13px] font-semibold hover:bg-ink hover:text-porcelain"
+        >
+          <span className="whitespace-nowrap">Show name</span>
+        </button>
+      )}
+      <p className="mt-1.5 max-w-[24ch] text-[12.5px] leading-snug text-muted">{open ? BUCKET_LINE[role] : "What do these foods have in common?"}</p>
     </div>
   );
 }
@@ -209,6 +255,16 @@ export function SameBucketPairs() {
   );
 }
 
+function MiniPail({ color, filled }: { color: string; filled: boolean }) {
+  return (
+    <svg viewBox="0 0 40 34" className="h-8 w-9" aria-hidden>
+      <path d="M5 10 C 7 -2, 33 -2, 35 10" fill="none" stroke="currentColor" strokeWidth="1.6" opacity=".5" />
+      <ellipse cx="20" cy="10" rx="16" ry="3.5" fill="#e9e3c4" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 10 A16 3.5 0 0 0 36 10 L32 31 Q20 34 8 31 Z" fill={filled ? color : "#fffdf4"} stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
 /* Try: pack the buckets */
 const PACK: { f: Food; roles: Macro[]; why: string }[] = [
   { f: FOODS.quinoa, roles: ["carb", "protein", "fiber"], why: "Quinoa is a grain that also brings protein and fiber." },
@@ -267,7 +323,7 @@ export function PackBuckets({ onDone }: { onDone: () => void }) {
               <img src={p.f.img} alt="" className="illus h-9 w-9" />
               {p.f.name.replace(/, cooked$/, "")}
               {n > 0 && !checked && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-ink px-1 text-[11px] text-porcelain">{n}</span>}
-              {checked && <span className={ok ? "text-ink" : "text-red"}>{ok ? "✓" : "•"}</span>}
+              {checked && <span className={ok ? "text-ink" : "text-red"}>{ok ? "✓" : "✗"}</span>}
             </button>
           );
         })}
@@ -282,17 +338,55 @@ export function PackBuckets({ onDone }: { onDone: () => void }) {
               key={r}
               onClick={() => toggle(r)}
               aria-pressed={on}
-              className={`rounded-2xl border-2 px-3 py-4 text-[15px] font-semibold transition-colors ${
-                checked ? (should ? "border-ink bg-cream-2" : on ? "border-red bg-[#fde9e1] line-through" : "border-line opacity-50") : on ? "border-ink text-white" : "border-line hover:border-ink"
+              className={`flex flex-col items-center gap-1 rounded-2xl border-2 px-3 py-3 text-[15px] font-semibold transition-colors ${
+                checked
+                  ? should
+                    ? "border-ink bg-cream-2"
+                    : on
+                      ? "border-red bg-[#fde9e1] line-through"
+                      : "border-line opacity-50"
+                  : on
+                    ? "border-ink bg-cream-2"
+                    : "border-line hover:border-ink"
               }`}
-              style={!checked && on ? { background: MACRO[r].color, borderColor: MACRO[r].color } : undefined}
             >
-              {MACRO[r].label}
+              <MiniPail color={MACRO[r].color} filled={on || (checked && should)} />
+              <span className="flex items-center gap-1">
+                {MACRO[r].label}
+                {checked && should && <span aria-label={on ? "you had this" : "you missed this"}>{on ? "✓" : "＋"}</span>}
+              </span>
             </button>
           );
         })}
       </div>
-      {checked && <p className="mt-4 text-[15px] leading-relaxed">{item.why} Tap the other foods to see their answers.</p>}
+      {checked && (
+        <div role="status" className="mt-4 rounded-2xl bg-cream-2 p-4">
+          <p className="text-[15px] leading-relaxed">
+            <strong>{item.f.name.replace(/, cooked$/, "")}:</strong> {item.why}
+          </p>
+          <p className="mt-3 text-[13px] font-semibold text-muted">
+            All six foods ({PACK.filter((p) => { const m = picks[p.f.id] ?? []; return p.roles.length === m.length && p.roles.every((r) => m.includes(r)); }).length} of 6 exactly right). Tap any food above to see its answer.
+          </p>
+          <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            {PACK.map((p) => {
+              const m = picks[p.f.id] ?? [];
+              const ok = p.roles.length === m.length && p.roles.every((r) => m.includes(r));
+              return (
+                <li key={p.f.id} className="flex items-center gap-2 text-[13.5px]">
+                  <img src={p.f.img} alt="" className="illus h-7 w-7" />
+                  <span className="min-w-0 flex-1 truncate">{p.f.name.replace(/, cooked$/, "")}</span>
+                  <span className="flex gap-1">
+                    {p.roles.map((r) => (
+                      <RoleChip key={r} role={r} size="sm" />
+                    ))}
+                  </span>
+                  <span className={ok ? "text-ink" : "text-red"}>{ok ? "✓" : "✗"}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       {!checked && (
         <button
           onClick={check}
@@ -502,6 +596,7 @@ export function JamieSnack({ onDone }: { onDone: () => void }) {
       </p>
       <div className="mt-4">
         <DayTimeline
+          gap={pick ? undefined : null}
           slots={[
             { t: "10:00 am", h: 10 },
             { t: "3:30 pm", h: 15.5 },

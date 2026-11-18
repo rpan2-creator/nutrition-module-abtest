@@ -348,7 +348,7 @@ export const LESSONS: Lesson[] = [
             prompt="Why does plate B have more energy when it looks the same?"
             chain="what's different → which nutrient → how much energy it adds"
             placeholder="Plate B was cooked in … and fat …"
-            model="Plate B was cooked in about two thumbs of oil. Fat has 9 kcal per gram, so that's about 240 extra kcal you can't see."
+            model="Plate B was cooked in about 2 tbsp of oil (one thumb). Fat has 9 kcal per gram, so that's about 240 extra kcal you can't see."
             onDone={done}
           />
         )}
