@@ -2,7 +2,9 @@ import type { KC } from "./kcs";
 
 /**
  * Two parallel forms. Item n in form A and item n in form B test the same KC
- * with different foods or numbers. Half of participants take A first, half B.
+ * with different foods or numbers. Every participant, in both versions, takes
+ * form A as the pre-check and form B as the post-check, so the only thing that
+ * differs between versions is the explanation step inside the lessons.
  * Values used are general reference values (4/4/9 kcal per gram; Mifflin-St Jeor;
  * adult BMI categories; HPRC hand-portion guide).
  */
@@ -305,10 +307,9 @@ export const FORM_B: TestItem[] = [
   },
 ];
 
-export function formFor(order: "AB" | "BA", which: "pre" | "post") {
-  const first = order === "AB" ? FORM_A : FORM_B;
-  const second = order === "AB" ? FORM_B : FORM_A;
-  return which === "pre" ? { form: first, name: order[0] } : { form: second, name: order[1] };
+/** Fixed for everyone: pre-check = form A, post-check = form B (same in both versions). */
+export function formFor(_order: "AB" | "BA" | undefined, which: "pre" | "post") {
+  return which === "pre" ? { form: FORM_A, name: "A" } : { form: FORM_B, name: "B" };
 }
 
 export function isCorrect(item: TestItem, answer: unknown): boolean | null {

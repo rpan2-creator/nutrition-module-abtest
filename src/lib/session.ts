@@ -9,7 +9,7 @@ export type Phase = "start" | "pre" | "learn" | "post" | "done";
 export interface Session {
   id: string;
   condition: Condition;
-  /** Which test form is the pre-test; the other is the post-test. */
+  /** Always "AB": pre-check is form A, post-check is form B, in both versions. */
   order: "AB" | "BA";
   phase: Phase;
   preScore?: { correct: number; total: number };
@@ -60,7 +60,7 @@ export function newSession(condition?: Condition): Session {
   return {
     id,
     condition: condition ?? (Math.random() < 0.5 ? "A" : "B"),
-    order: Math.random() < 0.5 ? "AB" : "BA",
+    order: "AB",
     phase: "start",
     createdAt: Date.now(),
   };
