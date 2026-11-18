@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FlowHeader, Button, useFlowGuard } from "@/components/Shell";
+import { VersionPill } from "@/components/ab/version";
 import { answersKey, StoredAnswer } from "@/components/TestRunner";
 import { FORM_A, FORM_B, TestItem } from "@/content/tests";
 import { KCS } from "@/content/kcs";
@@ -31,6 +32,9 @@ export default function DonePage() {
     <>
       <FlowHeader phase="done" />
       <main className="mx-auto max-w-3xl px-5 py-12">
+        <p className="mb-4 flex flex-wrap items-center gap-2 text-[15px] text-muted">
+          You completed <VersionPill v={session.condition} />
+        </p>
         <h1 className="font-display text-[clamp(36px,6vw,64px)] font-bold leading-[0.95]">Thanks — you&rsquo;re done.</h1>
         <p className="mt-4 max-w-[60ch] text-[17px] leading-relaxed text-muted">
           Here&rsquo;s how your two checks compare. The written explanation isn&rsquo;t scored automatically.

@@ -129,7 +129,7 @@ export default function LearnPage() {
       <FlowHeader phase="learn" right={lesson.chapter < 4 ? `Chapter ${lesson.chapter + 1} of 4` : "Wrap-up"} />
 
       {/* lesson index: finished lessons can be revisited; later ones open in order */}
-      <nav aria-label="Lessons" className="sticky top-14 z-20 border-b border-line bg-porcelain/95 backdrop-blur">
+      <nav aria-label="Lessons" className="sticky top-[84px] z-20 border-b border-line bg-porcelain/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 py-2.5 [scrollbar-width:none]">
           {CHAPTERS.map((c, ci) => {
             const ls = LESSONS.map((l, li) => ({ l, li })).filter((x) => x.l.chapter === ci);
@@ -200,7 +200,7 @@ export default function LearnPage() {
           </div>
 
           {step === "try" && (
-            <motion.div ref={tryRef} data-part="try" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="mt-14 scroll-mt-28 border-t border-line pt-10">
+            <motion.div ref={tryRef} data-part="try" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="mt-14 scroll-mt-36 border-t border-line pt-10">
               <p className="text-[14px] font-semibold text-red">Try it</p>
               <h2 className="font-display mt-1 text-[clamp(28px,3.6vw,44px)] font-bold leading-[1]">{lesson.tryTitle}</h2>
               <div className="mt-8">

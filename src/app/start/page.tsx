@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FlowHeader, Button } from "@/components/Shell";
 import { Condition, forcedVersion, getSession, newSession, PHASE_PATH, saveSession, STUDY } from "@/lib/session";
 import { identifyParticipant } from "@/lib/posthog";
+import { VERSIONS, VersionPill } from "@/components/ab/version";
 import { track } from "@/lib/track";
 
 const BACKGROUNDS = [
@@ -20,9 +21,11 @@ export default function StartPage() {
   const [background, setBackground] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [resume, setResume] = useState<string | null>(null);
+  const [assigned, setAssigned] = useState<Condition | null>(null);
+  const [forced, setForced] = useState<Condition | null>(null);
 
   useEffect(() => {
-    forcedVersion(); // remembers ?v=A or ?v=B from the link, if a tester used one
+    setForced(forcedVersion()); // remembers ?v=A or ?v=B from the link, if a tester used one
     const s = getSession();
     if (s && s.phase !== "start") setResume(PHASE_PATH[s.phase]);
   }, []);
@@ -59,7 +62,42 @@ export default function StartPage() {
       /* the module still works offline; events will retry */
     }
     track({ phase: "start", screen: "start", event_type: "phase_complete", response: { background }, meta: { study: STUDY, assignment: method } });
-    router.push("/pre");
+    setAssigned(s.condition);
+    setBusy(false);
+    window.scrollTo({ top: 0 });
+  }
+
+  if (assigned) {
+    const info = VERSIONS[assigned];
+    const other = VERSIONS[assigned === "A" ? "B" : "A"];
+    return (
+      <>
+        <FlowHeader phase="start" />
+        <main className="mx-auto max-w-2xl px-5 py-12 sm:py-16">
+          <p className="text-[15px] text-muted">You have been assigned to</p>
+          <div className="mt-3 rounded-[28px] p-7 sm:p-9" style={{ background: info.bg, color: info.fg }}>
+            <p className="font-display text-[clamp(52px,9vw,88px)] font-extrabold leading-[0.9]">{info.name}</p>
+            <p className="mt-2 text-[20px] font-semibold">{info.tag}</p>
+            <p className="mt-4 max-w-[52ch] text-[16px] leading-relaxed opacity-85">{info.long}</p>
+          </div>
+          <div className="mt-6 grid gap-3 text-[15px] leading-relaxed sm:grid-cols-2">
+            <div className="rounded-2xl bg-tray p-5">
+              <p className="font-semibold">The same in both versions</p>
+              <p className="mt-1 text-muted">Lessons, pictures, practice tasks, feedback, and the pre-check and post-check.</p>
+            </div>
+            <div className="rounded-2xl bg-tray p-5">
+              <p className="font-semibold">The other version</p>
+              <p className="mt-1 text-muted">
+                {other.name}: {other.short}
+              </p>
+            </div>
+          </div>
+          <div className="mt-8">
+            <Button onClick={() => router.push("/pre")}>Start the pre-check</Button>
+          </div>
+        </main>
+      </>
+    );
   }
 
   return (
@@ -83,6 +121,12 @@ export default function StartPage() {
               </Button>
             </div>
           </div>
+        )}
+
+        {forced && (
+          <p className="mt-6 flex flex-wrap items-center gap-2 text-[15px]">
+            This link starts <VersionPill v={forced} />
+          </p>
         )}
 
         <fieldset className="mt-10">
@@ -125,7 +169,7 @@ export default function StartPage() {
 
         <div className="mt-8">
           <Button onClick={begin} disabled={!consent || !background || busy}>
-            {busy ? "Starting…" : "Start the pre-check"}
+            {busy ? "Assigning a version…" : "Continue"}
           </Button>
         </div>
       </main>

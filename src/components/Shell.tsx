@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { VersionBar } from "@/components/ab/version";
 import { forcedVersion, getSession, isPreview, newSession, Phase, PHASE_PATH, saveSession, Session } from "@/lib/session";
 
 const ORDER: Phase[] = ["start", "pre", "learn", "post", "done"];
@@ -89,6 +90,7 @@ export function FlowHeader({ phase, right }: { phase: Phase; right?: React.React
           {right}
         </div>
       </div>
+      {phase !== "start" && <VersionBar />}
     </header>
   );
 }

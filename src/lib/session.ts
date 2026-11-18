@@ -32,6 +32,7 @@ export function getSession(): Session | null {
 export function saveSession(s: Session) {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(s));
+    window.dispatchEvent(new Event("nm-session"));
   } catch {
     /* storage unavailable: the session lives only in memory for this page */
   }

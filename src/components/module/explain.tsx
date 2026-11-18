@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import type { KC } from "@/content/kcs";
 import type { Condition } from "@/lib/session";
 import { track } from "@/lib/track";
+import { VersionPill } from "@/components/ab/version";
 
 /**
  * The one step that differs between the two study versions, used once per chapter
@@ -96,8 +97,11 @@ export function ExplainStep({
 
   if (condition === "A") {
     return (
-      <div className="rounded-[24px] bg-cream-2 p-6">
-        <p className="text-[13px] font-semibold text-red">Key point</p>
+      <div className="rounded-[24px] border-2 border-ink bg-cream-2 p-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <VersionPill v="A" />
+          <p className="text-[13px] font-semibold text-red">Key point</p>
+        </div>
         <p className="mt-2 max-w-[62ch] text-[17px] leading-relaxed">{model}</p>
         {!finished && (
           <button onClick={finishA} className="mt-5 rounded-full bg-ink px-5 py-2.5 text-[15px] font-semibold text-porcelain hover:bg-red">
@@ -109,8 +113,11 @@ export function ExplainStep({
   }
 
   return (
-    <div className="rounded-[24px] bg-tray p-6 ring-1 ring-line">
-      <p className="text-[13px] font-semibold text-red">Explain it in one sentence</p>
+    <div className="rounded-[24px] border-2 border-red bg-tray p-6">
+      <div className="flex flex-wrap items-center gap-2">
+        <VersionPill v="B" />
+        <p className="text-[13px] font-semibold text-red">Explain it in one sentence</p>
+      </div>
       <p className="mt-1 text-[19px] font-semibold leading-snug">{prompt}</p>
       <p className="mt-1 text-[14px] text-muted">Use the chain: food or amount → its nutritional role → why that helps here.</p>
       <textarea
