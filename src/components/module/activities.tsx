@@ -421,7 +421,7 @@ export function PlateBuilder({ onDone }: { onDone: () => void }) {
     <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
       <div>
         <p className="text-[16px] leading-relaxed text-muted">
-          Lunch: a big plate of pasta (2 fists) with a little tomato sauce. You have practice this afternoon. Choose up to <strong className="text-ink">two</strong> changes.
+          Lunch at 12:30: a big plate of pasta (2 fists) with a little tomato sauce. You have practice at 5 pm. Choose up to <strong className="text-ink">two</strong> changes.
         </p>
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           {ADDONS.map((a) => {
@@ -536,7 +536,7 @@ export function SnackMatch({ onDone }: { onDone: () => void }) {
     if (k >= SNACKS.length) onDone();
   }, [k, onDone]);
   const s = SNACKS[k];
-  if (!s) return <p className="rounded-2xl bg-tray p-5">Three balanced snacks. Now explain one below.</p>;
+  if (!s) return <p className="rounded-2xl bg-tray p-5">Three balanced snacks.</p>;
   return (
     <div className="rounded-[28px] bg-tray p-6 sm:p-8">
       <p className="text-[13px] font-medium text-muted">

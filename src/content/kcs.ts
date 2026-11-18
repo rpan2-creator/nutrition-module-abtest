@@ -13,6 +13,7 @@ export const KCS = {
   plate_adjust: "Adjusting a plate",
   snack_pairing: "Pairing a snack",
   causal_justification: "Explaining a choice",
+  meal_timing: "Eating regularly through the day",
   transfer: "Applying it to a new situation",
 } as const;
 

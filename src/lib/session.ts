@@ -96,7 +96,12 @@ export function isPreview(): boolean {
 
 
 /** A tester can force a version with ?v=A or ?v=B on any page; it applies to the next new session. */
+/** Set per deployment: the A site and the B site are the same code with this fixed. */
+export const FIXED_VERSION: Condition | null =
+  process.env.NEXT_PUBLIC_FIXED_VERSION === "A" || process.env.NEXT_PUBLIC_FIXED_VERSION === "B" ? process.env.NEXT_PUBLIC_FIXED_VERSION : null;
+
 export function forcedVersion(): Condition | null {
+  if (FIXED_VERSION) return FIXED_VERSION;
   if (typeof window === "undefined") return null;
   try {
     const q = new URLSearchParams(window.location.search).get("v");

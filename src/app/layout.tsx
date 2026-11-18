@@ -8,7 +8,7 @@ import { Analytics } from "@/lib/posthog";
 export const metadata: Metadata = {
   title: "What's in your bowl? · A practical nutrition module",
   description:
-    "A 55-minute learning module on nutrients, food energy, and portions you can see.",
+    "A 50-minute learning module on nutrients, food energy, and portions you can see.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

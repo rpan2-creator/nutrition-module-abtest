@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { VERSIONS } from "./version";
+import { FIXED_VERSION } from "@/lib/session";
 
 /**
  * Home-page section that shows the A/B study at a glance: the one step that differs,
@@ -9,6 +10,7 @@ import { VERSIONS } from "./version";
  * for random assignment.
  */
 export function AbChooser() {
+  if (FIXED_VERSION) return <FixedVersion v={FIXED_VERSION} />;
   return (
     <section id="versions" className="bg-porcelain">
       <div className="mx-auto max-w-6xl px-6 py-24 sm:px-10">
@@ -77,6 +79,42 @@ export function AbChooser() {
           <Link href="/start" className="inline-flex shrink-0 rounded-full bg-ink px-6 py-3 text-[15px] font-semibold text-[#fdfbee] hover:bg-red">
             Start with a random version
           </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** On the single-version sites: say which version this is and what the other one does. */
+function FixedVersion({ v }: { v: "A" | "B" }) {
+  const info = VERSIONS[v];
+  const other = VERSIONS[v === "A" ? "B" : "A"];
+  return (
+    <section id="versions" className="bg-porcelain">
+      <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10">
+        <p className="text-[15px] font-semibold text-red">A/B study</p>
+        <div className="mt-4 grid gap-5 lg:grid-cols-[1.3fr_1fr] lg:items-stretch">
+          <div className="rounded-[30px] p-7 sm:p-9" style={{ background: info.bg, color: info.fg }}>
+            <p className="text-[15px] opacity-80">This site is</p>
+            <p className="font-display mt-1 text-[clamp(52px,8vw,88px)] font-extrabold leading-[0.9]">{info.name}</p>
+            <p className="mt-2 text-[20px] font-semibold">{info.tag}</p>
+            <p className="mt-4 max-w-[52ch] text-[16px] leading-relaxed opacity-85">{info.long}</p>
+            <Link href="/start" className="mt-7 inline-flex rounded-full bg-[#fdfbee] px-6 py-3 text-[15px] font-semibold transition-transform hover:scale-[1.03]" style={{ color: info.bg }}>
+              Start {info.name}
+            </Link>
+          </div>
+          <div className="flex flex-col justify-between rounded-[30px] bg-cream-2 p-7">
+            <div>
+              <p className="font-semibold">The same in both versions</p>
+              <p className="mt-1 text-[15px] leading-relaxed text-muted">Lessons, pictures, practice tasks and feedback, and the pre-check and post-check.</p>
+            </div>
+            <div className="mt-6">
+              <p className="font-semibold">The other version</p>
+              <p className="mt-1 text-[15px] leading-relaxed text-muted">
+                {other.name}: {other.short}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

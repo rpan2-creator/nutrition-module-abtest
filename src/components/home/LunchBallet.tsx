@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useReducedMotion, useTime, MotionValue, useMotionValueEvent } from "framer-motion";
 import { MACRO, Macro } from "@/content/kcs";
+import { FIXED_VERSION } from "@/lib/session";
 
 /**
  * The home page opening, after the ROSSO "ingredient ballet":
@@ -181,18 +182,22 @@ export default function LunchBallet() {
         <div className="absolute inset-x-0 top-0 z-50 mx-auto flex max-w-7xl items-center justify-between px-6 py-5 text-[13px] sm:px-10">
           <span className="font-serif text-[16px] font-semibold tracking-[0.02em] text-[#f6ead9] mix-blend-difference sm:text-[20px]">What&rsquo;s in your bowl?</span>
           <nav aria-label="Study versions" className="flex items-center gap-2">
-            <Link href="/start?v=A" className="whitespace-nowrap rounded-full bg-[#110000] px-3 py-1.5 text-[12.5px] font-semibold text-[#fdfbee] ring-1 ring-[#fdfbee]/30 hover:ring-[#fdfbee]">
-              Version A
-            </Link>
-            <Link href="/start?v=B" className="whitespace-nowrap rounded-full bg-[#d50000] px-3 py-1.5 text-[12.5px] font-semibold text-[#fdfbee] ring-1 ring-[#fdfbee]/30 hover:ring-[#fdfbee]">
-              Version B
-            </Link>
+            {(FIXED_VERSION ? [FIXED_VERSION] : (["A", "B"] as const)).map((v) => (
+              <Link
+                key={v}
+                href={FIXED_VERSION ? "/start" : `/start?v=${v}`}
+                className="whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-semibold text-[#fdfbee] ring-1 ring-[#fdfbee]/30 hover:ring-[#fdfbee]"
+                style={{ background: v === "A" ? "#110000" : "#d50000" }}
+              >
+                Version {v}
+              </Link>
+            ))}
           </nav>
         </div>
 
         {/* 1 · hero */}
         <motion.div style={{ opacity: heroOpacity, y: heroY, pointerEvents: heroEvents }} className="absolute inset-0 z-30 mx-auto flex max-w-7xl flex-col justify-center px-6 sm:px-10">
-          <p className="font-serif text-[15px] italic text-[#f0c9b8]">A 55-minute nutrition module for college students</p>
+          <p className="font-serif text-[15px] italic text-[#f0c9b8]">A 50-minute nutrition module for college students</p>
           <h1 className="font-serif mt-5 max-w-[11ch] text-[clamp(46px,7.6vw,120px)] font-medium uppercase leading-[0.9] tracking-[-0.01em] text-[#f6ead9]">
             What&rsquo;s really on your plate?
           </h1>
@@ -204,7 +209,7 @@ export default function LunchBallet() {
               Start learning
             </Link>
             <a href="#versions" className="rounded-full border border-[#f6ead9]/60 px-7 py-3.5 text-[15px] font-semibold text-[#f6ead9] transition-colors hover:bg-[#f6ead9]/10">
-              See the two versions
+              {FIXED_VERSION ? `About Version ${FIXED_VERSION}` : "See the two versions"}
             </a>
           </div>
         </motion.div>

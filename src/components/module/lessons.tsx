@@ -9,6 +9,7 @@ import { ExplainStep } from "./explain";
 import { BmiScale, Estimator, HandCards, OilPlates, PlateBuilder, PlateModelVisual, PortionCounter, SnackMatch, TdeeBar } from "./activities";
 import { Explain, Practice } from "./Practice";
 import { motion } from "framer-motion";
+import { DayTimeline, FourBuckets, FourQuestions, GapAdvice, JamieSnack, MultiRoleList, NeedsCheck, PackBuckets, SameBucketPairs, Sources, SRC, ThreeParts, WhenYouEat } from "./v2";
 
 export interface Lesson {
   id: string;
@@ -23,7 +24,7 @@ export interface Lesson {
   tryTitle: string;
 }
 
-export const CHAPTERS = ["Macronutrients", "Energy", "Portions by hand", "Build a plate", "Take it with you"];
+export const CHAPTERS = ["Part 1 · What's in your food?", "Part 2 · What your body uses", "Part 3 · How much matters", "Part 4 · Put it together", "Take it with you"];
 
 function Cluster({ ids, size = "h-24 w-24" }: { ids: string[]; size?: string }) {
   return (
@@ -73,77 +74,68 @@ function Compare({ a, b, label }: { a: { img: string; t: string; v: string }; b:
 }
 
 export const LESSONS: Lesson[] = [
-  /* ───────── Chapter 1 ───────── */
+  /* ───────── Part 1 · What's in your food? ───────── */
   {
-    id: "1.1-macros",
-    short: "The four roles",
+    id: "1.1-buckets",
+    short: "The four food buckets",
     chapter: 0,
-    title: "Meet the macronutrients",
+    title: "The four food buckets",
     minutes: 4,
     slides: [
       {
-        title: "Food is made of a few big building blocks",
+        title: "Four buckets of food. What does each bucket have in common?",
+        wide: true,
+        gate: "Open all four buckets to continue",
         body: (
           <>
-            <p>
-              Carbohydrate, protein, and fat are the nutrients you eat in large amounts. They&rsquo;re called <strong>macronutrients</strong>, and all three
-              supply energy. Fiber travels with many plant foods and plays its own role.
+            <Note>
+              Part 1 asks: <em>what does this food provide?</em>
+            </Note>
+            <p className="mt-4">
+              Carbohydrate, protein, and fat are the <strong>macronutrients</strong>: nutrients you eat in large amounts, and all three give you energy. Fiber comes with plant
+              foods and plays its own role. Look inside each bucket and guess what the foods share, then hover over or tap the bucket to see its name.
             </p>
-            <Term word="Macronutrient">A nutrient you need in large amounts (grams a day) that provides energy: carbohydrate, protein, or fat.</Term>
           </>
         ),
-        visual: <Cluster ids={["rice", "salmon", "avocado", "broccoli"]} size="h-28 w-28" />,
-      },
-      {
-        title: "Each one has a main job",
-        body: (
-          <div className="grid gap-3">
-            {[
-              ["carb", "Main quick fuel for your brain and muscles."],
-              ["protein", "Builds and repairs tissue; helps a meal keep you full."],
-              ["fat", "Concentrated energy; helps absorb some vitamins."],
-              ["fiber", "Supports digestion and fullness."],
-            ].map(([r, t]) => (
-              <div key={r} className="flex items-center gap-3">
-                <RoleChip role={r as "carb"} />
-                <span>{t}</span>
-              </div>
-            ))}
-          </div>
-        ),
-        visual: (
-          <div className="grid grid-cols-2 gap-2">
-            {["bread", "egg", "olive-oil", "raspberries"].map((id, i) => (
-              <Illus key={id} src={`/food/${id}.webp`} className="h-28 w-28" bob delay={i} />
-            ))}
-          </div>
-        ),
+        visual: (done) => <FourBuckets onDone={done} />,
       },
       {
         title: "Many foods play more than one role",
         body: (
           <>
             <p>
-              Black beans are a carbohydrate, a protein, <em>and</em> a fiber source. Salmon brings protein and fat. Peanut butter is shelved with protein
-              foods, but most of its energy comes from fat.
+              Some foods sit in several buckets at once. Black beans are a carbohydrate, a protein, <em>and</em> a fiber source. Milk brings carbohydrate and protein. Salmon
+              brings protein and fat. Peanut butter is shelved with protein foods, but most of its energy comes from fat.
             </p>
             <Note>The question isn&rsquo;t &ldquo;is this food a protein?&rdquo; but &ldquo;which roles does it play, and how much?&rdquo;</Note>
           </>
         ),
-        visual: <Cluster ids={["black-beans", "salmon", "peanut-butter"]} size="h-32 w-32" />,
+        visual: <MultiRoleList />,
+      },
+      {
+        title: "Same bucket, very different foods",
+        body: (
+          <>
+            <p>Foods in the same bucket can still be very different. The name and the shelf don&rsquo;t tell you everything; the label does.</p>
+            <Note>Check &ldquo;Protein&rdquo; and &ldquo;Added sugars&rdquo; on a label when the difference matters to you.</Note>
+            <Sources items={[SRC.carbs, SRC.protein, SRC.fats, SRC.fiber]} />
+          </>
+        ),
+        visual: <SameBucketPairs />,
       },
     ],
-    tryTitle: "Tag each food with its roles",
+    tryTitle: "Pack the buckets",
     Try: ({ condition, onDone }) => (
       <Sequence
         onDone={onDone}
-        first={(done) => <RoleTagger id="1.1-try" foods={[FOODS.beans, FOODS.pb, FOODS.salmon, FOODS.banana]} condition="predict" onDone={done} />}
+        first={(done) => <PackBuckets onDone={done} />}
         second={(done) => (
           <ExplainStep
-            id="ch1-explain"
+            id="part1-explain"
             kc="multi_roles"
             condition={condition}
             prompt="Pick a food with more than one role. Why does that matter when building a meal?"
+            chain="a food → the roles it plays → what that means for a meal"
             placeholder="Black beans give … so …"
             model="Black beans give carbohydrate, protein and fiber, so one scoop can add a protein source to a plate that's mostly starch."
             onDone={done}
@@ -153,156 +145,10 @@ export const LESSONS: Lesson[] = [
     ),
   },
   {
-    id: "1.2-carbs",
-    short: "Carbohydrates",
+    id: "1.2-energy",
+    short: "Energy in food",
     chapter: 0,
-    title: "Carbohydrates",
-    minutes: 4,
-    slides: [
-      {
-        title: "Carbohydrate is your main quick fuel",
-        body: (
-          <>
-            <p>
-              Your brain runs mostly on glucose, and hard exercise draws heavily on carbohydrate. That&rsquo;s why removing carbohydrate before practice or a
-              long study day often backfires.
-            </p>
-            <Term word="Complex carbohydrate">Starches and fiber in whole grains, beans, and potatoes. They digest more slowly than added sugars.</Term>
-          </>
-        ),
-        visual: <Cluster ids={["oatmeal", "potato", "pasta"]} size="h-32 w-32" />,
-      },
-      {
-        title: "Same macronutrient, very different packages",
-        body: (
-          <>
-            <p>
-              A can of soda and a bowl of oatmeal have similar grams of carbohydrate. The oatmeal also brings fiber and some protein; the soda&rsquo;s carbohydrate is
-              all <strong>added sugar</strong>.
-            </p>
-            <Note tone="warn">Look at the &ldquo;Added sugars&rdquo; line on a label to tell them apart.</Note>
-          </>
-        ),
-        visual: <Compare label="Carbohydrate per portion" a={{ img: "/food/soda.webp", t: "Soda, 12 oz", v: "39 g" }} b={{ img: "/food/oatmeal.webp", t: "Oatmeal, 1 cup", v: "27 g" }} />,
-      },
-      {
-        title: "Carbohydrate comes in many packages",
-        wide: true,
-        body: (
-          <p>
-            Grains, starchy vegetables, fruit, beans, and milk all bring carbohydrate. Turn the wheel, flip a few cards, then line them up — notice which
-            ones also bring fiber.
-          </p>
-        ),
-        gate: "Flip at least 3 cards to continue",
-        visual: (done) => (
-          <CardWheel
-            id="1.2-explore"
-            kc="carb_amounts"
-            macro="carb"
-            onDone={done}
-            foods={[FOODS.oatmeal, FOODS.sweetpotato, FOODS.apple, FOODS.quinoa, FOODS.tortilla, FOODS.brownrice, FOODS.crackers, FOODS.raspberries, FOODS.potato, FOODS.milk]}
-          />
-        ),
-      },
-      {
-        title: "Portions change the number a lot",
-        body: (
-          <p>
-            One cup of cooked rice — about one fist — has roughly <strong>45 g</strong> of carbohydrate, about the same as three slices of bread. A dining-hall
-            scoop is often two fists. Use that fist as your anchor: next you&rsquo;ll estimate six foods before each card flips.
-          </p>
-        ),
-        visual: (
-          <div className="flex items-center gap-3">
-            <Illus src="/food/rice.webp" className="h-32 w-32" bob />
-            <span className="font-display text-[34px] font-bold">≈</span>
-            <div className="flex -space-x-8">
-              {[0, 1, 2].map((i) => (
-                <Illus key={i} src="/food/bread.webp" className="h-24 w-24" bob delay={i} />
-              ))}
-            </div>
-          </div>
-        ),
-      },
-    ],
-    tryTitle: "Guess the carbs, then flip the card",
-    Try: ({ onDone }) => (
-      <CardWheel id="1.2-try" kc="carb_amounts" macro="carb" mode="guess" foods={[FOODS.pasta, FOODS.bread, FOODS.banana, FOODS.soda, FOODS.beans, FOODS.granola]} onDone={onDone} />
-    ),
-  },
-  {
-    id: "1.3-protein",
-    short: "Protein",
-    chapter: 0,
-    title: "Protein",
-    minutes: 3,
-    slides: [
-      {
-        title: "Protein builds, repairs, and keeps you full",
-        body: (
-          <>
-            <p>Muscle, skin, enzymes — protein supplies their building blocks. A meal with a substantial protein source usually keeps you satisfied longer.</p>
-            <Term word="Meaningful source">A food where protein is a main part of what it gives you — not just &ldquo;contains some.&rdquo;</Term>
-          </>
-        ),
-        visual: <Cluster ids={["chicken", "tofu", "egg", "edamame"]} size="h-28 w-28" />,
-      },
-      {
-        title: "Protein foods, side by side",
-        wide: true,
-        body: (
-          <p>
-            Animal and plant foods can both be meaningful sources. Flip the cards and line them up by protein — then check which ones also carry a lot of
-            fat.
-          </p>
-        ),
-        gate: "Flip at least 3 cards to continue",
-        visual: (done) => (
-          <CardWheel
-            id="1.3-explore"
-            kc="product_diff"
-            macro="protein"
-            onDone={done}
-            foods={[FOODS.salmon, FOODS.egg, FOODS.tofu, FOODS.edamame, FOODS.beans, FOODS.cheese, FOODS.jerky, FOODS.quinoa, FOODS.almonds]}
-          />
-        ),
-      },
-      {
-        title: "Look-alikes can be very different",
-        body: (
-          <>
-            <p>
-              Greek yogurt is strained, so it has about twice the protein of regular yogurt. Dairy and soy milk have 7–8 g per cup; almond and oat milk usually
-              have 1–3 g.
-            </p>
-            <Note>The name and the shelf don&rsquo;t tell you. The label does.</Note>
-          </>
-        ),
-        visual: <Compare label="Protein per cup" a={{ img: "/food/milk.webp", t: "Dairy milk", v: "8 g" }} b={{ img: "/food/almond-milk.webp", t: "Almond milk", v: "1 g" }} />,
-      },
-    ],
-    tryTitle: "Which has more protein?",
-    Try: ({ onDone }) => (
-      <PredictPairs
-        id="1.3-try"
-        kc="product_diff"
-        macro="protein"
-        condition="predict"
-        onDone={onDone}
-        pairs={[
-          { a: FOODS.regular, b: FOODS.greek, question: "Same size cup — which yogurt has more protein?", explain: "Greek yogurt is strained, which removes liquid and concentrates protein: about 17 g vs 9 g." },
-          { a: FOODS.almondmilk, b: FOODS.milk, question: "One cup each — which milk has more protein?", explain: "Dairy milk has about 8 g; unsweetened almond milk about 1 g. Soy milk is the plant milk closest to dairy." },
-          { a: FOODS.pb, b: FOODS.chicken, question: "Peanut butter (2 tbsp) or chicken (3 oz)?", explain: "Peanut butter has 7 g protein but 16 g fat. Chicken has 26 g protein — a far more meaningful source." },
-        ]}
-      />
-    ),
-  },
-  {
-    id: "1.4-fat-fiber",
-    short: "Fat & fiber",
-    chapter: 0,
-    title: "Fat, fiber, and energy density",
+    title: "Energy in food",
     minutes: 3,
     slides: [
       {
@@ -313,8 +159,9 @@ export const LESSONS: Lesson[] = [
               A <strong>calorie (kcal)</strong> is a unit of food energy. Carbohydrate and protein give about 4 kcal per gram; fat gives about 9.
             </p>
             <Note>
-              Worked example: a granola bar with 29 g carbohydrate, 4 g protein, and 7 g fat → 29 × 4 + 4 × 4 + 7 × 9 = 116 + 16 + 63 ≈ 195 kcal.
+              <strong>Worked example:</strong> a granola bar with 29 g carbohydrate, 4 g protein, and 7 g fat → 29 × 4 + 4 × 4 + 7 × 9 = 116 + 16 + 63 ≈ 195 kcal.
             </Note>
+            <Sources items={[SRC.fats]} />
           </>
         ),
         visual: <KcalBars />,
@@ -324,225 +171,147 @@ export const LESSONS: Lesson[] = [
         body: (
           <>
             <Term word="Energy density">How much energy a food packs into its size. Oil and nuts are high; vegetables and fruit are low.</Term>
-            <p>One tablespoon of olive oil (120 kcal) has more energy than two whole cups of spinach (14 kcal). Healthy fats are worth eating — just know the amount.</p>
-          </>
-        ),
-        visual: <Compare label="Energy per portion" a={{ img: "/food/olive-oil.webp", t: "Olive oil, 1 tbsp", v: "120 kcal" }} b={{ img: "/food/spinach.webp", t: "Spinach, 2 cups", v: "14 kcal" }} />,
-      },
-      {
-        title: "Fiber comes with plants",
-        wide: true,
-        body: (
-          <p>
-            Fiber is a carbohydrate you don&rsquo;t fully digest. It supports digestion and fullness. Beans, fruit, vegetables, and whole grains are the big
-            sources — line the wheel up by fiber to see which.
-          </p>
-        ),
-        gate: "Flip at least 3 cards to continue",
-        visual: (done) => (
-          <CardWheel
-            id="1.4-explore"
-            kc="macro_roles"
-            macro="fiber"
-            onDone={done}
-            foods={[FOODS.beans, FOODS.apple, FOODS.oatmeal, FOODS.sweetpotato, FOODS.edamame, FOODS.potato, FOODS.quinoa, FOODS.tomato, FOODS.bread, FOODS.banana]}
-          />
-        ),
-      },
-    ],
-    tryTitle: "Sort: energy-dense or light?",
-    Try: ({ onDone }) => (
-      <Sequence
-        onDone={onDone}
-        first={(done) => (
-        <SortBins
-          id="1.4-try"
-          kc="energy_density"
-          items={[FOODS.oil, FOODS.spinach, FOODS.almonds, FOODS.broccoli, FOODS.pb, FOODS.raspberries, FOODS.avocado, FOODS.carrot]}
-          bins={["Energy-dense", "Light"]}
-          answer={(f) => (f.kcal / Math.max(1, f.carb + f.protein + f.fat) > 6 || f.fat >= 10 ? 0 : 1)}
-          explain={(f) => (f.fat >= 10 ? `${f.fat} g fat in a small portion → ${f.kcal} kcal.` : `Mostly water and fiber → only ${f.kcal} kcal.`)}
-          onDone={done}
-        />)}
-        second={(done) => (
-        <Practice
-          onDone={done}
-          item={{
-            id: "1.4-calc",
-            kc: "energy_calc",
-            prompt: "A snack has 12 g carbohydrate, 3 g protein, and 8 g fat. About how much energy is that?",
-            options: [
-              { id: "a", text: "About 92 kcal" },
-              { id: "b", text: "About 132 kcal" },
-              { id: "c", text: "About 207 kcal" },
-              { id: "d", text: "About 23 kcal" },
-            ],
-            correct: "b",
-            explain: "12 × 4 + 3 × 4 + 8 × 9 = 48 + 12 + 72 = 132 kcal. If you chose 92, you used 4 for fat instead of 9.",
-          }}
-        />)}
-      />
-    ),
-  },
-
-  /* ───────── Chapter 2 ───────── */
-  {
-    id: "2.1-energy",
-    short: "Energy use",
-    chapter: 1,
-    title: "How much energy you use",
-    minutes: 5,
-    slides: [
-      {
-        title: "Your day's energy has three parts",
-        body: (
-          <>
-            <Term word="TDEE">Total daily energy expenditure — the energy you use in a day: resting metabolism + activity + digesting food.</Term>
-            <p>Basal metabolism is usually the biggest part. Activity is the part that changes most from day to day.</p>
-          </>
-        ),
-        visual: <TdeeBar />,
-      },
-      {
-        title: "Estimating it: an equation, then an activity factor",
-        body: (
-          <>
-            <p>
-              Dietitians often estimate BMR with the <strong>Mifflin–St Jeor equation</strong> using weight, height, age, and sex, then multiply by an activity
-              factor from 1.2 (mostly sitting) to 1.9 (extremely active).
+            <p className="mt-3">
+              One tablespoon of olive oil (120 kcal) has more energy than two whole cups of spinach (14 kcal). Healthy fats are worth eating; just know the amount.
             </p>
-            <Note>Worked example: BMR 1,600 × 1.375 (lightly active) = 2,200 kcal a day — an estimate, not a target.</Note>
           </>
         ),
-        visual: <Cluster ids={["banana", "oatmeal", "salmon"]} size="h-28 w-28" />,
-      },
-      {
-        title: "Balance happens over weeks, not meals",
-        body: (
-          <p>
-            Eating more energy than you use over weeks tends to raise body weight; less tends to lower it. A single meal or day matters much less than the pattern.
-            Personal targets depend on many factors — that&rsquo;s a conversation for a Registered Dietitian.
-          </p>
+        visual: (
+          <Compare label="Energy per portion" a={{ img: "/food/olive-oil.webp", t: "Olive oil, 1 tbsp", v: "120 kcal" }} b={{ img: "/food/spinach.webp", t: "Spinach, 2 cups", v: "14 kcal" }} />
         ),
-        visual: <Cluster ids={["apple", "granola-bar", "crackers"]} size="h-28 w-28" />,
       },
     ],
-    tryTitle: "Estimate Sam's daily energy use",
-    Try: ({ condition, onDone }) => (
-      <Sequence
-        onDone={onDone}
-        first={(done) => <Estimator onDone={done} />}
-        second={(done) => (
-        <Sequence
-          onDone={done}
-          first={(d) => (
-        <Practice
-          onDone={d}
-          item={{
-            id: "2.1-check",
-            kc: "tdee_calc",
-            prompt: "Another student's estimated BMR is 1,700 kcal. They mostly sit (factor 1.2). About how much energy do they use in a day?",
-            options: [
-              { id: "a", text: "About 1,700 kcal" },
-              { id: "b", text: "About 2,040 kcal" },
-              { id: "c", text: "About 2,640 kcal" },
-              { id: "d", text: "About 1,420 kcal" },
-            ],
-            correct: "b",
-            explain: "1,700 × 1.2 = 2,040 kcal. The factor is always above 1, because a day includes more than resting.",
-          }}
-        />)}
-          second={(d) => (
-            <ExplainStep
-              id="ch2-explain"
-              kc="energy_use"
-              condition={condition}
-              prompt="Sam has the same classes on Monday and Tuesday, plus a 2-hour practice on Tuesday. Why might Sam need more food on Tuesday?"
-              placeholder="Tuesday adds … so …"
-              model="Tuesday adds two hours of purposeful exercise, so Sam uses more energy that day; a bigger lunch or a snack before practice would help Sam keep up."
-              onDone={d}
-            />
-          )}
-        />)}
-      />
-    ),
-  },
-  {
-    id: "2.2-bmi",
-    short: "BMI",
-    chapter: 1,
-    title: "What BMI can and can't tell you",
-    minutes: 3,
-    slides: [
-      {
-        title: "BMI is weight relative to height",
-        body: (
-          <>
-            <Term word="BMI">Body mass index = weight (kg) ÷ height (m)². For Sam: 65 ÷ 1.70² ≈ 22.5.</Term>
-            <p>It&rsquo;s quick to calculate and useful for comparing large groups of adults.</p>
-          </>
-        ),
-        visual: <BmiScale />,
-      },
-      {
-        title: "But it can't see what the weight is made of",
-        body: (
-          <>
-            <p>BMI can&rsquo;t tell muscle from fat, where fat is stored, how fit someone is, or what they should eat. A muscular athlete can land in &ldquo;overweight.&rdquo;</p>
-            <Note tone="warn">Treat BMI as a rough screening number, never a verdict about one person.</Note>
-          </>
-        ),
-        visual: <Cluster ids={["chicken", "potato", "spinach"]} size="h-28 w-28" />,
-      },
-    ],
-    tryTitle: "Read a BMI correctly",
+    tryTitle: "Work out the energy",
     Try: ({ onDone }) => (
       <Practice
         onDone={onDone}
         item={{
-          id: "2.2-check",
-          kc: "bmi_limits",
-          prompt: "Two students both have a BMI of 29. One lifts weights five days a week; the other rarely exercises. What does BMI tell you about the difference?",
+          id: "1.2-check",
+          kc: "energy_calc",
+          prompt: "A snack has 12 g carbohydrate, 3 g protein, and 8 g fat. About how much energy is that?",
           options: [
-            { id: "a", text: "They have the same amount of body fat" },
-            { id: "b", text: "Very little — BMI doesn't separate muscle from fat" },
-            { id: "c", text: "The lifter is less healthy" },
-            { id: "d", text: "Both should eat 500 kcal less per day" },
+            { id: "a", text: "About 92 kcal" },
+            { id: "b", text: "About 132 kcal" },
+            { id: "c", text: "About 207 kcal" },
+            { id: "d", text: "About 23 kcal" },
           ],
           correct: "b",
-          explain: "BMI only uses weight and height. Two people with the same BMI can differ a lot in body composition and health.",
+          explain: "12 × 4 + 3 × 4 + 8 × 9 = 48 + 12 + 72 = 132 kcal. More than half of it comes from the 8 g of fat.",
         }}
       />
     ),
   },
 
-  /* ───────── Chapter 3 ───────── */
+  /* ───────── Part 2 · What your body uses ───────── */
   {
-    id: "3.1-hands",
-    short: "Hand portions",
-    chapter: 2,
-    title: "Your hand is a measuring tool",
-    minutes: 4,
+    id: "2.1-energy-use",
+    short: "Your body uses energy all day",
+    chapter: 1,
+    title: "Your body uses energy all day",
+    minutes: 5,
     slides: [
       {
-        title: "Why not just count calories?",
-        body: (
-          <p>
-            Counting is easy on a package and hard everywhere else: mixed dishes, sauces, dining halls, parties. A registered dietitian we consulted put it
-            simply — practical, visual estimates transfer better than exact numbers.
-          </p>
-        ),
-        visual: <Cluster ids={["pasta", "salmon", "spinach"]} size="h-28 w-28" />,
-      },
-      {
-        title: "Four hand measures (tap each card)",
+        title: "Your day's energy has three parts",
+        gate: "Turn over all three cards to continue",
         body: (
           <>
-            <p>These are rough reference amounts — not how much you should eat. Hand sizes vary; compare your fist to a measuring cup once.</p>
-            <Note>Source: Human Performance Resources by CHAMP (HPRC) hand guide.</Note>
+            <Note>
+              Part 1 asked <em>what does this food provide?</em> Part 2 asks <em>why can the amount you need change?</em>
+            </Note>
+            <p className="mt-4">Your body uses energy all day, not only during exercise. Dietitians often describe it in three parts. Tap each card.</p>
           </>
         ),
-        visual: <HandCards />,
+        visual: (done) => <ThreeParts onDone={done} />,
+      },
+      {
+        title: "Needs are not fixed",
+        gate: "Check your answer to continue",
+        body: (
+          <p>
+            Tuesday: classes most of the day and a short walk home. Saturday: a long hike with friends. Your energy needs on these two days aren&rsquo;t the same. Which parts of
+            energy use change?
+          </p>
+        ),
+        visual: (done) => <NeedsCheck onDone={done} />,
+      },
+      {
+        title: "Steady beats strict",
+        body: (
+          <>
+            <p>Eating more energy than you use over weeks tends to raise body weight; less tends to lower it. One meal or one day matters much less than the pattern.</p>
+            <Note tone="warn">
+              Cutting calories hard usually backfires: low energy, trouble focusing in class, and strong hunger later. Slow, steady changes are more likely to last. Personal
+              targets are a conversation for a Registered Dietitian.
+            </Note>
+            <Sources items={[SRC.weight, SRC.portions]} />
+          </>
+        ),
+        visual: <Cluster ids={["apple", "granola-bar", "crackers"]} size="h-28 w-28" />,
+      },
+    ],
+    tryTitle: "Why might Maya need more on Tuesday?",
+    Try: ({ condition, onDone }) => (
+      <Sequence
+        onDone={onDone}
+        first={(done) => (
+          <Practice
+            onDone={done}
+            item={{
+              id: "2.1-maya",
+              kc: "energy_use",
+              prompt:
+                "Maya has the same classes on Monday and Tuesday. On Tuesday she also has a two-hour soccer practice. Which part of her energy use is most different on Tuesday?",
+              options: [
+                { id: "a", text: "Basal metabolism — it doubles on practice days" },
+                { id: "b", text: "Purposeful exercise — the practice adds energy use" },
+                { id: "c", text: "None — energy use is the same every day" },
+                { id: "d", text: "Digesting food — it is the biggest part" },
+              ],
+              correct: "b",
+              explain: "Her basal metabolism and daily walking are about the same both days. The two-hour practice is purposeful exercise, so Tuesday uses more energy.",
+            }}
+          />
+        )}
+        second={(done) => (
+          <ExplainStep
+            id="part2-explain"
+            kc="energy_use"
+            condition={condition}
+            prompt="In one sentence: why might Maya need more food on Tuesday, and when would it help most?"
+            chain="what changes → which part of energy use → what it means for her food"
+            placeholder="Tuesday adds … so …"
+            model="Tuesday adds two hours of purposeful exercise, so Maya uses more energy that day; a bigger lunch or a snack a few hours before practice would help her keep up."
+            onDone={done}
+          />
+        )}
+      />
+    ),
+  },
+
+  /* ───────── Part 3 · How much matters ───────── */
+  {
+    id: "3.1-hands",
+    short: "Your hand is a measuring tool",
+    chapter: 2,
+    title: "Your hand is a measuring tool",
+    minutes: 3,
+    slides: [
+      {
+        title: "Four hand measures",
+        gate: "Open all four hand cards to continue",
+        body: (
+          <>
+            <Note>
+              So far: <em>what does a food provide?</em> and <em>why do needs change?</em> Part 3 asks <em>about how much is there?</em>
+            </Note>
+            <p className="mt-4">
+              Counting calories is easy on a package and hard in a dining hall. Your hand is always with you. These are rough references, not how much you should eat. Tap
+              each card.
+            </p>
+            <p className="mt-3 text-[15px] text-muted">Hand sizes differ. Compare your fist with a measuring cup once, so you know what yours means.</p>
+          </>
+        ),
+        visual: (done) => <HandCards onDone={done} />,
       },
     ],
     tryTitle: "Size these portions with your hand",
@@ -550,17 +319,17 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "3.2-hidden",
-    short: "Hidden energy",
+    short: "The energy you can't see",
     chapter: 2,
     title: "The energy you can't see",
-    minutes: 3,
+    minutes: 2,
     slides: [
       {
         title: "Small additions, big energy",
         body: (
           <>
             <p>Oil, butter, dressing, and sauces barely change how a plate looks, but they can add hundreds of calories. One thumb of oil (2 tbsp) ≈ 240 kcal.</p>
-            <Note>When estimating a plate, ask: was it cooked in or topped with fat?</Note>
+            <Note>When you estimate a plate, ask: was it cooked in or topped with fat?</Note>
           </>
         ),
         visual: <Cluster ids={["olive-oil", "peanut-butter", "avocado"]} size="h-28 w-28" />,
@@ -573,10 +342,11 @@ export const LESSONS: Lesson[] = [
         first={(done) => <OilPlates condition="predict" onDone={done} />}
         second={(done) => (
           <ExplainStep
-            id="ch3-explain"
+            id="part3-explain"
             kc="energy_density"
             condition={condition}
             prompt="Why does plate B have more energy when it looks the same?"
+            chain="what's different → which nutrient → how much energy it adds"
             placeholder="Plate B was cooked in … and fat …"
             model="Plate B was cooked in about two thumbs of oil. Fat has 9 kcal per gram, so that's about 240 extra kcal you can't see."
             onDone={done}
@@ -586,59 +356,115 @@ export const LESSONS: Lesson[] = [
     ),
   },
 
-  /* ───────── Chapter 4 ───────── */
+  /* ───────── Part 4 · Put it together ───────── */
   {
-    id: "4.1-plate",
-    short: "Balanced plate",
+    id: "4.1-day",
+    short: "A day of eating",
     chapter: 3,
-    title: "Build a balanced plate",
+    title: "A day of eating",
     minutes: 4,
+    slides: [
+      {
+        title: "Eat regularly through the day",
+        wide: true,
+        body: (
+          <>
+            <Note>
+              You can now ask what a food provides, why needs change, and how much is there. Part 4 puts it together, starting with <em>when</em> you eat.
+            </Note>
+            <p className="mt-4">
+              Many people do well eating about 3–4 times a day, roughly every 4 hours. Long gaps tend to leave you low on energy in class and very hungry later, which makes
+              overeating at night more likely.
+            </p>
+            <p className="mt-3">Skipping breakfast doesn&rsquo;t help a muscle-gain goal either. Your classes, activity, and hunger can shift the schedule.</p>
+            <Sources items={[SRC.portions, SRC.breakfast]} />
+          </>
+        ),
+        visual: <DayTimeline />,
+      },
+      {
+        title: "Haven't eaten in a while?",
+        body: (
+          <>
+            <p>
+              Sometimes the gap happens anyway: you slept through breakfast, a lab ran long, and now it&rsquo;s 3 pm and your stomach is empty. Eat something now instead of
+              holding out for dinner. Start with a moderate portion of a carbohydrate with some protein, eat it slowly, then have your next meal at its usual time.
+            </p>
+            <Note tone="warn">
+              Two things tend to backfire: a huge, heavy meal eaten fast, and only a sugary drink or candy. Very hungry is also when overeating is most likely.
+            </Note>
+            <Sources items={[SRC.portions]} />
+          </>
+        ),
+        visual: <GapAdvice />,
+      },
+      {
+        title: "When you eat changes what helps",
+        body: (
+          <>
+            <p>The same food can be a good or a weak choice depending on what comes next.</p>
+            <Sources items={[SRC.timing]} />
+          </>
+        ),
+        visual: <WhenYouEat />,
+      },
+    ],
+    tryTitle: "Plan around a busy day",
+    Try: ({ onDone }) => <JamieSnack onDone={onDone} />,
+  },
+  {
+    id: "4.2-plate",
+    short: "Fix a plate for the situation",
+    chapter: 3,
+    title: "Fix a plate for the situation",
+    minutes: 5,
     slides: [
       {
         title: "A plate as a reference, not a rule",
         body: (
           <>
             <p>
-              The Harvard Healthy Eating Plate suggests about half vegetables and fruit, a quarter whole grains, a quarter protein, plus some healthy fat. Athletes,
-              people with health conditions, and different goals may need different proportions.
+              The Harvard Healthy Eating Plate suggests about half vegetables and fruit, a quarter whole grains, a quarter protein, plus some healthy fat. Athletes, people with
+              health conditions, and different goals may need different proportions.
             </p>
+            <Sources items={[SRC.plate]} />
           </>
         ),
         visual: <PlateModelVisual />,
       },
       {
-        title: "Three ways to improve a plate",
+        title: "Four questions, worked on a quick breakfast",
         body: (
-          <ol className="grid gap-3">
-            {[
-              ["Add what's missing.", "If a role is absent or tiny, add a food that plays it."],
-              ["Swap within a role.", "No chicken? Beans or tofu play the same role."],
-              ["Adjust amounts before removing.", "Often the fix is a smaller or larger portion, not deleting a food group."],
-            ].map(([t, b], i) => (
-              <li key={t} className="grid grid-cols-[32px_1fr] gap-2">
-                <span className="font-display text-[26px] font-extrabold leading-none text-red">{i + 1}</span>
-                <span>
-                  <strong>{t}</strong> {b}
-                </span>
-              </li>
-            ))}
-          </ol>
+          <>
+            <p>Toast and a banana at 8:00, then classes until 12:30.</p>
+            <Note>Three ways to change a plate: add what&rsquo;s missing, swap within a role, adjust an amount before removing a food.</Note>
+          </>
         ),
-        visual: <Cluster ids={["tofu", "black-beans", "chicken"]} size="h-28 w-28" />,
+        visual: (
+          <FourQuestions
+            items={[
+              { q: "What's there?", a: "Mostly carbohydrate, some fiber." },
+              { q: "How much?", a: "A fairly small meal." },
+              { q: "What's the situation?", a: "4½ hours of class, no break to eat." },
+              { q: "What could I change?", a: "Add Greek yogurt or an egg for protein, so breakfast lasts longer." },
+            ]}
+          />
+        ),
       },
     ],
-    tryTitle: "Fix a pasta lunch",
+    tryTitle: "Fix a pasta lunch before practice",
     Try: ({ condition, onDone }) => (
       <Sequence
         onDone={onDone}
         first={(done) => <PlateBuilder onDone={done} />}
         second={(done) => (
           <ExplainStep
-            id="ch4-explain"
+            id="part4-explain"
             kc="causal_justification"
             condition={condition}
             prompt="Explain one change you made to the pasta lunch."
-            placeholder="Adding … gives the plate … which …"
+            chain="the change → its nutritional role → why it helps before practice"
+            placeholder="Adding … gives the meal … which …"
             model="Adding a palm of chicken gives the meal the protein it lacked; keeping the pasta gives carbohydrate for practice later."
             onDone={done}
           />
@@ -647,21 +473,20 @@ export const LESSONS: Lesson[] = [
     ),
   },
   {
-    id: "4.2-snack",
-    short: "Balanced snack",
+    id: "4.3-snack",
+    short: "Build a balanced snack",
     chapter: 3,
     title: "Build a balanced snack",
-    minutes: 2,
+    minutes: 3,
     slides: [
       {
         title: "Pair a carbohydrate with a protein",
         body: (
           <>
             <p>
-              A simple principle from a registered dietitian: <strong>in general, pair a carbohydrate with a protein.</strong> Carbohydrate gives quick energy;
-              protein, fat, and fiber slow digestion, so the snack tends to last longer.
+              One simple way to build a more filling snack: <strong>pair a carbohydrate with a protein.</strong> Carbohydrate gives quick energy; protein, fat, and fiber slow
+              digestion, so the snack lasts longer.
             </p>
-            <Term word="Gastric emptying">How fast food leaves your stomach. Protein, fat, and fiber slow it down.</Term>
           </>
         ),
         visual: (
@@ -674,44 +499,63 @@ export const LESSONS: Lesson[] = [
       },
     ],
     tryTitle: "Complete three snacks",
-    Try: ({ onDone }) => <SnackMatch onDone={onDone} />,
+    Try: ({ onDone }) => (
+      <div>
+        <p className="mb-4 text-[16px] leading-relaxed text-muted">
+          It&rsquo;s 2 pm. You have class until 4 and practice at 5. Look at what each snack already has, then add the missing role.
+        </p>
+        <SnackMatch onDone={onDone} />
+      </div>
+    ),
   },
 
-  /* ───────── Wrap ───────── */
+  /* ───────── Take it with you ───────── */
   {
-    id: "5.1-wrap",
-    short: "Checklist",
+    id: "5.1-checklist",
+    short: "A checklist for any meal",
     chapter: 4,
     title: "A checklist for any meal",
-    minutes: 1,
+    minutes: 2,
     slides: [
       {
         title: "Four questions you can ask anywhere",
         body: (
-          <ol className="grid gap-3">
-            {[
-              ["What roles are on my plate?", "Carbohydrate, protein, fat, fiber — and foods that play several."],
-              ["About how much is there?", "Fist, palm, cupped hand, thumb."],
-              ["What's missing or out of proportion?", "Add, swap within a role, or adjust the amount."],
-              ["Does it fit my day?", "More active days use more energy. For personal needs, ask a Registered Dietitian."],
-            ].map(([q, a], i) => (
-              <li key={q} className="grid grid-cols-[32px_1fr] gap-2">
-                <span className="font-display text-[26px] font-extrabold leading-none text-red">{i + 1}</span>
-                <span>
-                  <strong>{q}</strong> <span className="text-muted">{a}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
+          <Note>
+            This is general nutrition education, not individual medical or dietary advice. Personal needs differ. A Registered Dietitian can give you individual guidance.
+          </Note>
         ),
-        visual: <Cluster ids={["salmon", "rice", "broccoli", "avocado"]} size="h-24 w-24" />,
+        visual: (
+          <FourQuestions
+            items={[
+              { q: "What does it provide?", a: "Carbohydrate, protein, fat, fiber — often more than one." },
+              { q: "About how much is there?", a: "Use labels, visual comparisons, or hand references when helpful." },
+              { q: "What does the situation call for?", a: "Timing, activity, what you've already eaten, and what's available." },
+              { q: "What is one reasonable adjustment?", a: "Add, swap, or adjust an amount, rather than cutting a food out completely." },
+            ]}
+          />
+        ),
       },
     ],
-    tryTitle: "Ready for the post-check",
+    tryTitle: "One new situation",
     Try: ({ onDone }) => (
-      <AutoDone onDone={onDone}>
-        <p className="rounded-2xl bg-tray p-5 text-[16px]">That&rsquo;s the module. The post-check is next — about 10 minutes, and you can skip anything.</p>
-      </AutoDone>
+      <Practice
+        onDone={onDone}
+        item={{
+          id: "5.1-transfer",
+          kc: "transfer",
+          prompt:
+            "Lee eats a bowl of oatmeal with milk at 7:00, then has a 4-hour lab before lunch at 12:00, with no break to buy food. What is one reasonable adjustment?",
+          options: [
+            { id: "a", text: "Skip breakfast so lunch feels bigger" },
+            { id: "b", text: "Pack a snack, like an apple and a cheese stick, for mid-morning" },
+            { id: "c", text: "Drink extra coffee instead of eating" },
+            { id: "d", text: "Nothing — a 5-hour gap is always fine" },
+          ],
+          correct: "b",
+          explain:
+            "Breakfast is fine, but five hours with a lab in between is a long gap. A packed snack with carbohydrate and protein keeps energy steady until lunch. Skipping or replacing food with coffee makes the gap worse.",
+        }}
+      />
     ),
   },
 ];

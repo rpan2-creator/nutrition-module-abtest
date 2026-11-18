@@ -19,9 +19,9 @@ import { VersionPill } from "@/components/ab/version";
  */
 
 const CHECKS = [
-  { id: "food", text: "Did mine name the food or the amount?" },
-  { id: "role", text: "Did mine name its nutritional role?" },
-  { id: "why", text: "Did mine say why it matters in this situation?" },
+  { id: "what", text: "Mine names what changed (a food, an amount, or an activity)" },
+  { id: "idea", text: "Mine names the nutrition idea behind it (a role, or energy)" },
+  { id: "why", text: "Mine says why that matters in this situation" },
 ];
 
 export function ExplainStep({
@@ -29,6 +29,7 @@ export function ExplainStep({
   kc,
   condition,
   prompt,
+  chain,
   placeholder,
   model,
   onDone,
@@ -38,6 +39,8 @@ export function ExplainStep({
   condition: Condition;
   /** Version B's question. */
   prompt: string;
+  /** The reasoning chain shown under B's question. */
+  chain: string;
   placeholder: string;
   /** The model explanation, identical for both versions. */
   model: string;
@@ -119,7 +122,7 @@ export function ExplainStep({
         <p className="text-[13px] font-semibold text-red">Explain it in one sentence</p>
       </div>
       <p className="mt-1 text-[19px] font-semibold leading-snug">{prompt}</p>
-      <p className="mt-1 text-[14px] text-muted">Use the chain: food or amount → its nutritional role → why that helps here.</p>
+      <p className="mt-1 text-[14px] text-muted">Use the chain: {chain}.</p>
       <textarea
         value={text}
         disabled={compared}
@@ -134,16 +137,16 @@ export function ExplainStep({
           onClick={compare}
           className="mt-3 rounded-full bg-ink px-5 py-2.5 text-[15px] font-semibold text-porcelain hover:bg-red disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
         >
-          Compare with a model answer
+          Compare with a model explanation
         </button>
       ) : (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5">
           <div className="rounded-2xl bg-cream-2 p-5">
-            <p className="text-[13px] font-semibold text-red">Model answer</p>
+            <p className="text-[13px] font-semibold text-red">Model explanation</p>
             <p className="mt-1 text-[16px] leading-relaxed">{model}</p>
           </div>
           <fieldset className="mt-5">
-            <legend className="text-[15px] font-semibold">Check your own sentence against it</legend>
+            <legend className="text-[15px] font-semibold">Compare yours. Tick what yours already does:</legend>
             <div className="mt-2 grid gap-2">
               {CHECKS.map((c) => (
                 <label key={c.id} className="flex cursor-pointer items-center gap-3 text-[15px]">
@@ -162,7 +165,7 @@ export function ExplainStep({
           <p className="mt-3 text-[14px] text-muted">If you missed one, think about how you would add it.</p>
           {!finished && (
             <button onClick={finishB} className="mt-4 rounded-full bg-ink px-5 py-2.5 text-[15px] font-semibold text-porcelain hover:bg-red">
-              Continue
+              Done comparing
             </button>
           )}
         </motion.div>

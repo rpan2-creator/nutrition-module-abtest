@@ -126,17 +126,17 @@ export default function LearnPage() {
 
   return (
     <>
-      <FlowHeader phase="learn" right={lesson.chapter < 4 ? `Chapter ${lesson.chapter + 1} of 4` : "Wrap-up"} />
+      <FlowHeader phase="learn" right={lesson.chapter < 4 ? `Part ${lesson.chapter + 1} of 4` : "Wrap-up"} />
 
       {/* lesson index: finished lessons can be revisited; later ones open in order */}
-      <nav aria-label="Lessons" className="sticky top-[84px] z-20 border-b border-line bg-porcelain/95 backdrop-blur">
+      <nav aria-label="Lessons" className="sticky top-[84px] z-20 border-b border-line bg-porcelain/95 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 py-2.5 [scrollbar-width:none]">
           {CHAPTERS.map((c, ci) => {
             const ls = LESSONS.map((l, li) => ({ l, li })).filter((x) => x.l.chapter === ci);
             if (!ls.length) return null;
             return (
               <div key={c} className="flex shrink-0 items-center gap-1.5">
-                <span className={`mr-1 text-[12.5px] font-semibold ${ci === lesson.chapter ? "text-red" : "text-muted"}`}>{c}</span>
+                <span className={`mr-1 text-[12.5px] font-semibold ${ci === lesson.chapter ? "text-red" : "text-muted"}`}>{c.split(" · ")[0]}</span>
                 {ls.map(({ l, li }) => (
                   <button
                     key={l.id}
@@ -158,10 +158,50 @@ export default function LearnPage() {
         </div>
       </nav>
 
-      <main className="mx-auto max-w-6xl px-5 pb-24 pt-6">
+      <div className="mx-auto max-w-7xl px-5 lg:grid lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-10">
+        {/* course outline (desktop) */}
+        <aside className="hidden lg:block">
+          <nav aria-label="Course outline" className="sticky top-[100px] py-8">
+            <p className="text-[12px] font-semibold tracking-[0.04em] text-muted">COURSE OUTLINE</p>
+            <div className="mt-4 grid gap-5">
+              {CHAPTERS.map((c, ci) => {
+                const ls = LESSONS.map((l, li) => ({ l, li })).filter((x) => x.l.chapter === ci);
+                return (
+                  <div key={c}>
+                    <p className={`text-[12.5px] font-semibold ${ci === lesson.chapter ? "text-ink" : "text-muted"}`}>{c}</p>
+                    <ul className="mt-1.5 grid gap-0.5">
+                      {ls.map(({ l, li }) => (
+                        <li key={l.id}>
+                          <button
+                            onClick={() => jump(li)}
+                            disabled={!unlocked(li)}
+                            aria-current={li === index ? "page" : undefined}
+                            className={`flex w-full items-start gap-2.5 rounded-lg py-1.5 pl-2 pr-1 text-left text-[13.5px] leading-snug transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                              li === index ? "border-l-2 border-red bg-cream-2 font-semibold" : "hover:bg-cream-2"
+                            }`}
+                          >
+                            <span
+                              className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border text-[9px] ${tried[l.id] ? "border-ink bg-ink text-porcelain" : "border-line"}`}
+                              aria-hidden
+                            >
+                              {tried[l.id] ? "✓" : ""}
+                            </span>
+                            {l.title}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </nav>
+        </aside>
+
+      <main className="min-w-0 pb-24 pt-6 lg:pt-8">
         <motion.section key={lesson.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="bg-porcelain" aria-labelledby="lesson-title">
           <p className="text-[14px] font-semibold text-red">
-            {lesson.chapter < 4 ? `Chapter ${lesson.chapter + 1} · Lesson ${pos + 1}` : "Wrap-up"} · about {lesson.minutes} min
+            {lesson.chapter < 4 ? `Part ${lesson.chapter + 1} · Lesson ${pos + 1} of ${inChapter.length}` : "Take it with you"} · about {lesson.minutes} min
           </p>
           <h1 id="lesson-title" className="font-display mt-1 max-w-[18ch] text-[clamp(36px,5.4vw,68px)] font-extrabold leading-[0.92] tracking-[-0.02em]">
             {lesson.title}
@@ -228,6 +268,7 @@ export default function LearnPage() {
           </div>
         </div>
       </main>
+      </div>
     </>
   );
 }

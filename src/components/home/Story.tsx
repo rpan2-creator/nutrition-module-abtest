@@ -144,10 +144,10 @@ export function FourRoles() {
 /* ── The route through the module ── */
 const ROUTE = [
   { t: "Pre-check", m: "10 min", b: "What you already know. Skip anything you're unsure of.", img: "/food/crackers.webp" },
-  { t: "Macronutrients", m: "14 min", b: "Carbs, protein, fat, fiber — with flip cards for real foods.", img: "/food/pasta.webp" },
-  { t: "Energy", m: "8 min", b: "Calories, BMR, daily energy use, and what BMI can't say.", img: "/food/banana.webp" },
-  { t: "Portions by hand", m: "7 min", b: "Fist, palm, cupped hand, thumb — estimating without a scale.", img: "/food/hand-palm.webp" },
-  { t: "Build a plate", m: "7 min", b: "Fix a lunch, pair a snack, explain why.", img: "/food/salmon.webp" },
+  { t: "What's in your food?", m: "7 min", b: "Four food buckets — and foods that sit in more than one — plus energy per gram.", img: "/food/pasta.webp" },
+  { t: "What your body uses", m: "5 min", b: "Three parts of daily energy use, and why your needs change day to day.", img: "/food/banana.webp" },
+  { t: "How much matters", m: "5 min", b: "Fist, palm, cupped hand, thumb — and the energy you can't see.", img: "/food/hand-palm.webp" },
+  { t: "Put it together", m: "13 min", b: "When to eat, fix a lunch before practice, pair a snack, try a new situation.", img: "/food/salmon.webp" },
   { t: "Post-check", m: "10 min", b: "See how far you moved.", img: "/food/apple.webp" },
 ];
 
@@ -155,7 +155,7 @@ export function Route() {
   return (
     <section className="bg-night text-[#fdfbee]">
       <div className="mx-auto max-w-7xl px-6 py-28 sm:px-10">
-        <h2 className="font-display max-w-[14ch] text-[clamp(36px,5vw,72px)] font-extrabold leading-[0.92] tracking-[-0.02em]">How the 55 minutes go</h2>
+        <h2 className="font-display max-w-[14ch] text-[clamp(36px,5vw,72px)] font-extrabold leading-[0.92] tracking-[-0.02em]">How the 50 minutes go</h2>
         <ol className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {ROUTE.map((r, i) => (
             <motion.li

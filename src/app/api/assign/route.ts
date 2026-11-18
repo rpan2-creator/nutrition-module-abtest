@@ -11,6 +11,8 @@ export const dynamic = "force-dynamic";
  * unreachable it falls back to a plain coin flip.
  */
 export async function GET() {
+  const fixed = process.env.NEXT_PUBLIC_FIXED_VERSION;
+  if (fixed === "A" || fixed === "B") return NextResponse.json({ condition: fixed, method: "fixed_site" });
   const coin = Math.random() < 0.5 ? "A" : "B";
   const db = supabaseAdmin();
   if (!db) return NextResponse.json({ condition: coin, method: "coin" });
