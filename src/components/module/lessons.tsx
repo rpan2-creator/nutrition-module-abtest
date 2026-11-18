@@ -93,7 +93,7 @@ export const LESSONS: Lesson[] = [
             </Note>
             <p className="mt-4">
               Carbohydrate, protein, and fat are the <strong>macronutrients</strong>: nutrients you eat in large amounts, and all three give you energy. Fiber comes with plant
-              foods and plays its own role. Look inside each bucket and guess what the foods share, then hover over or tap the bucket to see its name.
+              foods and plays its own role. Hover over or tap the foods in each bucket to see what they are, guess what they share, then show the bucket&apos;s name.
             </p>
           </>
         ),

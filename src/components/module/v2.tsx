@@ -56,47 +56,78 @@ const BUCKET_LINE: Record<Macro, string> = {
   fiber: "The part of plants you don't fully digest; helps digestion and fullness.",
 };
 
-function Bucket({ role, foods, open, onOpen }: { role: Macro; foods: Food[]; open: boolean; onOpen: () => void }) {
+function FoodInBucket({ f, i, small, onSee }: { f: Food; i: number; small: boolean; onSee: (f: Food) => void }) {
+  const [on, setOn] = useState(false);
+  const show = () => {
+    setOn(true);
+    onSee(f);
+  };
   return (
-    <button
-      type="button"
-      onMouseEnter={onOpen}
-      onFocus={onOpen}
-      onClick={onOpen}
-      aria-label={open ? `${MACRO[role].label} bucket` : "Open this bucket"}
-      className="group flex flex-col items-center text-center"
+    <span
+      tabIndex={0}
+      role="img"
+      aria-label={f.name}
+      onMouseEnter={show}
+      onMouseLeave={() => setOn(false)}
+      onFocus={show}
+      onBlur={() => setOn(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        on ? setOn(false) : show();
+      }}
+      className={`relative grid ${small ? "w-[24%]" : "w-[30%]"} cursor-help place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ink`}
     >
-      <div className="relative w-full max-w-[190px]">
-        {/* foods heaped above the rim */}
-        <div className="relative z-0 -mb-6 flex flex-wrap items-end justify-center gap-0">
-          {foods.slice(0, 7).map((f, i) => (
-            <img key={f.id + i} src={f.img} alt={f.name} title={f.name} className="illus -mx-1.5 h-12 w-12 object-contain" style={{ transform: `rotate(${(i % 3) * 8 - 8}deg)` }} />
-          ))}
-        </div>
-        {/* the bucket */}
-        <svg viewBox="0 0 200 150" className="relative z-10 w-full" aria-hidden>
-          <path d="M18 18 L182 18 L162 140 Q100 150 38 140 Z" fill="#fffdf4" stroke="#110000" strokeWidth="3" />
-          <ellipse cx="100" cy="18" rx="82" ry="10" fill="#f3f0d6" stroke="#110000" strokeWidth="3" />
-          <path d="M40 60 Q100 70 160 60" stroke="#110000" strokeOpacity=".15" strokeWidth="2" fill="none" />
-        </svg>
-        <div className="absolute inset-x-0 bottom-[22%] z-20 flex justify-center">
-          {open ? (
-            <motion.span initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-              <RoleChip role={role} />
-            </motion.span>
-          ) : (
-            <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-ink bg-porcelain font-display text-[18px] font-bold">?</span>
-          )}
-        </div>
-      </div>
-      <p className="mt-2 max-w-[22ch] text-[12.5px] leading-snug text-muted">{open ? BUCKET_LINE[role] : "What do these foods have in common?"}</p>
-    </button>
+      <img src={f.img} alt="" className={`illus aspect-square w-full object-contain transition-transform duration-150 hover:scale-125`} style={{ transform: `rotate(${(i % 3) * 7 - 7}deg)` }} />
+      {on && (
+        <span className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[12px] font-semibold text-porcelain shadow">
+          {f.name}
+        </span>
+      )}
+    </span>
   );
 }
 
-/** Slide visual: four buckets of foods; hover or tap to see the role. Calls done once all four are open. */
+function Bucket({ role, foods, open, onOpen, onSee }: { role: Macro; foods: Food[]; open: boolean; onOpen: () => void; onSee: (f: Food) => void }) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <div className="relative w-full max-w-[240px]" style={{ aspectRatio: "200 / 190" }}>
+        {/* the bucket */}
+        <svg viewBox="0 0 200 190" className="absolute inset-0 h-full w-full" aria-hidden>
+          <path d="M10 22 L190 22 L166 178 Q100 190 34 178 Z" fill="#fffdf4" stroke="#110000" strokeWidth="3" />
+          <ellipse cx="100" cy="22" rx="90" ry="12" fill="#f3f0d6" stroke="#110000" strokeWidth="3" />
+        </svg>
+        {/* the foods, inside it; hover or tap a food to see its name */}
+        <div className="absolute inset-x-[15%] top-[15%] bottom-[8%] z-10 flex flex-wrap content-center items-center justify-center gap-y-[3%]">
+          {foods.map((f, i) => (
+            <FoodInBucket key={f.id + i} f={f} i={i} small={foods.length > 9} onSee={onSee} />
+          ))}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={open ? `${MACRO[role].label} bucket` : "Show this bucket's name"}
+        className="mt-3 flex min-h-10 items-center justify-center"
+      >
+        {open ? (
+          <motion.span initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+            <RoleChip role={role} />
+          </motion.span>
+        ) : (
+          <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-porcelain px-3.5 py-1.5 text-[13px] font-semibold hover:bg-cream-2">
+            <span className="font-display text-[16px] font-bold">?</span> <span className="whitespace-nowrap">Show name</span>
+          </span>
+        )}
+      </button>
+      <p className="mt-2 max-w-[24ch] text-[12.5px] leading-snug text-muted">{open ? BUCKET_LINE[role] : "What do these foods have in common?"}</p>
+    </div>
+  );
+}
+
+/** Slide visual: four buckets full of foods. Hover or tap a food to see its name; tap the button to see the bucket's name. Calls done once all four are named. */
 export function FourBuckets({ onDone }: { onDone?: () => void }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const seen = useRef(new Set<string>());
   const n = Object.values(open).filter(Boolean).length;
   useEffect(() => {
     if (n >= 4) onDone?.();
@@ -110,6 +141,12 @@ export function FourBuckets({ onDone }: { onDone?: () => void }) {
             role={b.role}
             foods={b.foods}
             open={!!open[b.role]}
+            onSee={(f) => {
+              const k = `${b.role}-${f.id}`;
+              if (seen.current.has(k)) return;
+              seen.current.add(k);
+              track({ phase: "learn", screen: "p1-buckets", event_type: "hover", item_id: `food-${k}` });
+            }}
             onOpen={() => {
               if (open[b.role]) return;
               setOpen((o) => ({ ...o, [b.role]: true }));
@@ -118,7 +155,7 @@ export function FourBuckets({ onDone }: { onDone?: () => void }) {
           />
         ))}
       </div>
-      <p className="mt-5 text-[13px] text-muted">Hover over each bucket to see its name, or tap it ({n} of 4 seen).</p>
+      <p className="mt-5 text-[13px] text-muted">Hover over or tap a food to see what it is. When you have a guess, show the bucket&apos;s name ({n} of 4 named).</p>
     </div>
   );
 }

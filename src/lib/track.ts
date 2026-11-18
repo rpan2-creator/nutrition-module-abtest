@@ -10,6 +10,7 @@ export type EventType =
   | "answer"
   | "skip"
   | "reveal"
+  | "hover"
   | "feedback_view"
   | "drag"
   | "slider"
